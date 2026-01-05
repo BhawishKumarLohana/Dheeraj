@@ -1,0 +1,18 @@
+# MarketMind Dependencies
+feedparser
+pandas
+requests
+beautifulsoup4
+vaderSentiment
+transformers
+torch
+matplotlib
+langchain
+langgraph
+langchain-google-genai
+google-generativeai
+tqdm
+
+# Backend API
+fastapi
+uvicorn[standard]

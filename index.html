@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketMind | Pakistani Business Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f0d;
+            --bg-secondary: #111916;
+            --bg-card: #151d19;
+            --accent-green: #34d399;
+            --accent-green-dim: #10b981;
+            --accent-red: #f87171;
+            --accent-amber: #fbbf24;
+            --text-primary: #f0fdf4;
+            --text-secondary: #a7c4b5;
+            --text-muted: #5e7a6a;
+            --border-color: #1f2e27;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(52, 211, 153, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(52, 211, 153, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(52, 211, 153, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: -1;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-dim) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .logo-text {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text span {
+            color: var(--accent-green);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 400;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent-green);
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+
+        /* Analyze button */
+        .analyze-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.1rem 2.5rem;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-dim) 100%);
+            color: var(--bg-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .analyze-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(52, 211, 153, 0.3);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .analyze-btn .icon {
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+        }
+
+        .analyze-btn:hover:not(:disabled) .icon {
+            transform: translateX(3px);
+        }
+
+        /* Loading state */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            padding: 4rem 2rem;
+        }
+
+        .loading-container.active {
+            display: flex;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            color: var(--accent-green);
+        }
+
+        .step.completed {
+            color: var(--text-secondary);
+        }
+
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .step.active .step-icon {
+            border-color: var(--accent-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        .step.completed .step-icon {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        /* Results section */
+        .results-container {
+            display: none;
+        }
+
+        .results-container.active {
+            display: block;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .results-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2rem;
+            font-weight: 400;
+        }
+
+        .results-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card.positive .stat-value { color: var(--accent-green); }
+        .stat-card.negative .stat-value { color: var(--accent-red); }
+        .stat-card.neutral .stat-value { color: var(--accent-amber); }
+        .stat-card.total .stat-value { color: var(--text-primary); }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Main content grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 900px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Summary card */
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(52, 211, 153, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .card-header h3 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+        }
+
+        .summary-text {
+            line-height: 1.8;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .summary-text strong {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Chart card */
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .chart-container {
+            text-align: center;
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        /* Articles section */
+        .articles-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .articles-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .articles-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .articles-card.positive .card-header-icon {
+            background: rgba(52, 211, 153, 0.15);
+        }
+
+        .articles-card.negative .card-header-icon {
+            background: rgba(248, 113, 113, 0.15);
+        }
+
+        .article-list {
+            list-style: none;
+        }
+
+        .article-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .article-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .article-title {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .article-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .article-title a:hover {
+            color: var(--accent-green);
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .article-source {
+            color: var(--text-muted);
+        }
+
+        .article-score {
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .article-score.positive {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--accent-green);
+        }
+
+        .article-score.negative {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--accent-red);
+        }
+
+        /* New analysis button */
+        .new-analysis-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            color: var(--accent-green);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px solid var(--accent-green);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .new-analysis-btn:hover {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        /* Error state */
+        .error-container {
+            display: none;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .error-container.active {
+            display: block;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">📊</div>
+            <div class="logo-text">Market<span>Mind</span></div>
+        </div>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span>System Online</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <h1>Pakistani Business <em>Intelligence</em></h1>
+            <p>
+                AI-powered sentiment analysis of business news from Dawn, Business Recorder, 
+                Express Tribune, and more. Get instant market insights with just one click.
+            </p>
+            <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
+                <span>Run Market Analysis</span>
+                <span class="icon">→</span>
+            </button>
+        </section>
+
+        <!-- Loading State -->
+        <section class="loading-container" id="loading">
+            <div class="loader"></div>
+            <div class="loading-text">Analyzing market sentiment...</div>
+            <div class="loading-steps">
+                <div class="step" id="step1">
+                    <div class="step-icon">1</div>
+                    <span>Fetching news from Pakistani business sources</span>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-icon">2</div>
+                    <span>Analyzing sentiment with VADER & FinBERT</span>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-icon">3</div>
+                    <span>Generating insights with Gemini AI</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error State -->
+        <section class="error-container" id="error">
+            <div class="error-icon">⚠️</div>
+            <h2 class="error-title">Analysis Failed</h2>
+            <p class="error-message" id="errorMessage">
+                Something went wrong while analyzing the market. Please try again.
+            </p>
+            <button class="analyze-btn" onclick="runAnalysis()">
+                <span>Try Again</span>
+                <span class="icon">↻</span>
+            </button>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-container" id="results">
+            <div class="results-header">
+                <h2 class="results-title">Market Analysis Report</h2>
+                <div class="results-meta">
+                    <div class="meta-item">
+                        <span>📅</span>
+                        <span id="timestamp"></span>
+                    </div>
+                    <button class="new-analysis-btn" onclick="runAnalysis()">
+                        <span>↻</span>
+                        <span>New Analysis</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-value" id="totalArticles">0</div>
+                    <div class="stat-label">Total Articles</div>
+                </div>
+                <div class="stat-card positive">
+                    <div class="stat-value" id="positiveCount">0</div>
+                    <div class="stat-label">Positive</div>
+                </div>
+                <div class="stat-card neutral">
+                    <div class="stat-value" id="neutralCount">0</div>
+                    <div class="stat-label">Neutral</div>
+                </div>
+                <div class="stat-card negative">
+                    <div class="stat-value" id="negativeCount">0</div>
+                    <div class="stat-label">Negative</div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <div class="summary-card">
+                    <div class="card-header">
+                        <div class="card-header-icon">🧠</div>
+                        <h3>AI Market Summary</h3>
+                    </div>
+                    <div class="summary-text" id="summaryText">
+                        Loading summary...
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <div class="card-header-icon">📈</div>
+                        <h3>Sentiment Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <img id="chartImage" src="" alt="Sentiment Chart">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Articles Section -->
+            <div class="articles-section">
+                <div class="articles-card positive">
+                    <div class="card-header">
+                        <div class="card-header-icon">📈</div>
+                        <h3>Top Positive News</h3>
+                    </div>
+                    <ul class="article-list" id="positiveArticles"></ul>
+                </div>
+
+                <div class="articles-card negative">
+                    <div class="card-header">
+                        <div class="card-header-icon">📉</div>
+                        <h3>Top Negative News</h3>
+                    </div>
+                    <ul class="article-list" id="negativeArticles"></ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>MarketMind © 2026 — Powered by VADER, FinBERT & Gemini AI</p>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        
+        let currentStep = 0;
+        let stepInterval;
+
+        function showSection(sectionId) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.remove('active'));
+            if (sectionId !== 'hero') {
+                document.getElementById('hero').style.display = 'none';
+            } else {
+                document.getElementById('hero').style.display = 'block';
+            }
+            const section = document.getElementById(sectionId);
+            if (section && sectionId !== 'hero') {
+                section.classList.add('active');
+            }
+        }
+
+        function animateSteps() {
+            const steps = ['step1', 'step2', 'step3'];
+            currentStep = 0;
+            
+            // Reset all steps
+            steps.forEach(s => {
+                document.getElementById(s).classList.remove('active', 'completed');
+            });
+            
+            stepInterval = setInterval(() => {
+                if (currentStep > 0) {
+                    document.getElementById(steps[currentStep - 1]).classList.remove('active');
+                    document.getElementById(steps[currentStep - 1]).classList.add('completed');
+                }
+                
+                if (currentStep < steps.length) {
+                    document.getElementById(steps[currentStep]).classList.add('active');
+                    currentStep++;
+                }
+            }, 8000); // Each step takes about 8 seconds
+            
+            // Start first step immediately
+            document.getElementById(steps[0]).classList.add('active');
+        }
+
+        function formatSummary(text) {
+            // Convert markdown-like formatting to HTML
+            return text
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-PK', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function renderArticles(articles, containerId, isPositive) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            articles.forEach(article => {
+                const li = document.createElement('li');
+                li.className = 'article-item';
+                li.innerHTML = `
+                    <div class="article-title">
+                        <a href="${article.link}" target="_blank" rel="noopener">${article.title}</a>
+                    </div>
+                    <div class="article-meta">
+                        <span class="article-source">${article.source}</span>
+                        <span class="article-score ${isPositive ? 'positive' : 'negative'}">
+                            ${article.score > 0 ? '+' : ''}${article.score.toFixed(2)}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        async function runAnalysis() {
+            const btn = document.getElementById('analyzeBtn');
+            btn.disabled = true;
+            
+            showSection('loading');
+            animateSteps();
+            
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                clearInterval(stepInterval);
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Analysis failed');
+                }
+                
+                const data = await response.json();
+                
+                // Update stats
+                document.getElementById('totalArticles').textContent = data.article_count;
+                document.getElementById('positiveCount').textContent = data.sentiment_counts.Positive || 0;
+                document.getElementById('neutralCount').textContent = data.sentiment_counts.Neutral || 0;
+                document.getElementById('negativeCount').textContent = data.sentiment_counts.Negative || 0;
+                
+                // Update timestamp
+                document.getElementById('timestamp').textContent = formatDate(data.timestamp);
+                
+                // Update summary
+                document.getElementById('summaryText').innerHTML = '<p>' + formatSummary(data.summary) + '</p>';
+                
+                // Update chart
+                if (data.chart_base64) {
+                    document.getElementById('chartImage').src = 'data:image/png;base64,' + data.chart_base64;
+                }
+                
+                // Update articles
+                renderArticles(data.top_positive, 'positiveArticles', true);
+                renderArticles(data.top_negative, 'negativeArticles', false);
+                
+                showSection('results');
+                
+            } catch (error) {
+                clearInterval(stepInterval);
+                console.error('Analysis error:', error);
+                document.getElementById('errorMessage').textContent = 
+                    error.message || 'Something went wrong while analyzing the market. Please make sure the backend server is running.';
+                showSection('error');
+            }
+            
+            btn.disabled = false;
+        }
+
+        // Check if API is available
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    document.querySelector('.status-dot').style.background = 'var(--accent-green)';
+                    document.querySelector('.status-badge span:last-child').textContent = 'System Online';
+                }
+            } catch {
+                document.querySelector('.status-dot').style.background = 'var(--accent-red)';
+                document.querySelector('.status-badge span:last-child').textContent = 'Backend Offline';
+            }
+        }
+
+        // Check API status on load
+        checkAPIStatus();
+        setInterval(checkAPIStatus, 30000);
+    </script>
+</body>
+</html>
+
